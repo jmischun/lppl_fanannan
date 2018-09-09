@@ -3,11 +3,14 @@
 import math
 import random
 import datetime
+import os
 import numpy as np
 import quandl
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 
+# configure quandl api
+quandl.ApiConfig.api_key = os.environ['QUANDL_API_KEY']
 
 # LPPL function
 def fit_func(t, parameters):
@@ -304,7 +307,7 @@ def get_historical_data(ticker, start_date, end_date):
     num_days = len(daily_data)
     timeseries = range(0, num_days)
     values = [daily_data['Adj_Close'][i] for i in range(num_days)]
-    datetimes = map(lambda tm: datetime.datetime(tm.year, tm.month, tm.day), daily_data.index.tolist())
+    datetimes = [datetime.datetime(tm.year, tm.month, tm.day) for tm in daily_data.index.tolist()]
     return [timeseries, values, datetimes]
 
 # pick up the target data from the all historical data series
@@ -400,7 +403,7 @@ def multi_steps(ticker, start_date, end_date, max_term, min_term, prediction_ter
     # execute multiple steps
     p = False
     results = []
-    for learning_end_date in list(datetimes_all)[max_term:]:
+    for learning_end_date in datetimes_all[max_term:]:
         # get learning data for single step execution
         LEARNING_DATA = get_learning_data(all_data, learning_end_date, max_term)
         (TIMESERIES, ACTUAL_VALUES, DATETIMES) = LEARNING_DATA
@@ -475,15 +478,15 @@ if __name__ == '__main__':
     MUTATION_RANGE = 0.2
     NUM_TOP_PERFORMERS = 10
 
-    ticker = '^VIX'
-    start_date = datetime.datetime(2014, 7, 1)
-    end_date = datetime.datetime(2015, 4, 3)
-    learning_end_date = datetime.datetime(2014, 4, 3)
+    ticker = 'BA'
+    start_date = datetime.datetime(2017, 8, 1)
+    end_date = datetime.datetime(2018, 2, 1)
+    learning_end_date = datetime.datetime(2017, 2, 1)
     max_term = 60
     min_term = 20
     prediction_term = 2
     generations = 10
-    verbose = True
+    verbose = False
 
 
 #single_step(ticker, start_date, end_date, learning_end_date, max_term, min_term, generations, verbose)
